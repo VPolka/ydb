@@ -68,8 +68,11 @@ void TPutImpl::PrepareOneReply(NKikimrProto::EReplyStatus status, size_t blobIdx
         auto ev = std::make_unique<TEvBlobStorage::TEvPutResult>(status, Blobs[blobIdx].BlobId, StatusFlags,
             Info->GroupID, ApproximateFreeSpaceShare);
         ev->ErrorReason = std::move(errorReason);
-        const NLog::EPriority priority = GetPriorityForReply(Info->PutErrorMuteChecker, status);
-        DSP_LOG_LOG_SX(logCtx, priority, "BPP12", "Result# " << ev->Print(false));
+        const NLog::EPriority prior = GetPriorityForReply(Info->PutErrorMuteChecker, status);
+        DSP_LOG_LOG_SX(logCtx, prior, "BPP12", "Result# " << ev->Print(false));
+        STLOG(prior, BS_PROXY_PUT, BPP17, "PrepareOneReply", \
+                (GroupId, Info->GroupID),                    \
+                (History, PrintHistory()));
         outPutResults.emplace_back(blobIdx, std::move(ev));
     }
 }
